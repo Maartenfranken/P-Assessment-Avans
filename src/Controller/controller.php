@@ -5,10 +5,6 @@ if (!class_exists('Controller')) {
 
         function __construct() {
             $this->setPaths();
-
-            //Autoload classes with extension .php (PHP 5 >= 5.1.0, PHP 7)
-            spl_autoload_extensions(".php");
-            spl_autoload_register();
         }
 
         private function setPaths()
@@ -19,6 +15,11 @@ if (!class_exists('Controller')) {
             if (!defined("IMAGE_PATH")) {
                 define('IMAGE_PATH', 'images/');
             }
+
+            //Autoload classes with extension .php (PHP 5 >= 5.1.0, PHP 7)
+            set_include_path(__DIR__."/Model/");
+            spl_autoload_extensions(".php");
+            spl_autoload_register();
         }
 
         public function getTemplate(String $file, Array $data = array())
@@ -33,20 +34,22 @@ if (!class_exists('Controller')) {
         }
 
         public function getCategories() {
-            $categories = array(
-                new Category("Pasta", 14),
-                new Category("Ontbijt"),
-                new Category("Avondeten"),
-                new Category("Mexicaans"),
-                new Category("Italiaans"),
-                new Category("Rijst"),
-                new Category("Hollands"),
-                new Category("Grieks"),
-                new Category("Chinees"),
-                new Category("Feestdagen")
-            );
-        
+            $db = Database::getInstance();
+            $categories = $db->query("SELECT * FROM category", Category::class);
             return $categories;
+        }
+
+        //Dummy data (use database later)
+        //Current default count = 10
+        public function getRecipes($count = 10) {
+            $recipes = array();
+            $category = new Category(0, "Pasta", "", 10);
+
+            for ($i = 0; $i < $count; $i++) {
+                $recipes[] = new Recipe($i, "Title", date_create("now"), "Lorem ipsum here", 4, "20 minuten", $category);
+            }
+
+            return $recipes;
         }
     }
 }
