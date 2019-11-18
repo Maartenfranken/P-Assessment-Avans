@@ -35,7 +35,11 @@ if (!class_exists('Category')) {
 
         public function getTitle()
         {
-            return $this->Title;
+            if ($this->Title) {
+                return $this->Title;
+            } else {
+                return "";
+            }
         }
 
         public function getDescription()
@@ -46,6 +50,10 @@ if (!class_exists('Category')) {
         public function getCount()
         {
             return $this->count;
+        }
+
+        public function getPermalink() {
+            return "category.php?id=" . $this->ID;
         }
     }
 }

@@ -1,13 +1,15 @@
-<?php if (isset($recipe)) { ?>
+<?php 
+$controller = new Controller();
+if (isset($recipe)) { ?>
 <div class="col-12">
     <div class="card">
-        <div class="d-flex flex-wrap">
+        <div class="d-flex">
             <div class="img-square-wrapper">
-                <img class="" src="http://via.placeholder.com/100x100" alt="Card image cap">
+                <img class="" src="http://via.placeholder.com/150x150" alt="Card image cap">
             </div>
             <div class="card-body">
-                <h4 class="card-title"><?php echo $recipe->title; ?></h4>
-                <p class="card-text"><?php echo $recipe->description; ?></p>
+                <h4 class="card-title"><?php echo $recipe->getTitle(); ?></h4>
+                <p class="card-text"><?php echo $controller->truncate($recipe->getDescription(), 100); ?></p>
             </div>
         </div>
     </div>

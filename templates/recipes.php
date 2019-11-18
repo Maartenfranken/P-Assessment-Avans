@@ -1,10 +1,14 @@
 <div class="recipes">
     <?php 
         $controller = new Controller();
-        $recipes = isset($count) ? $controller->getRecipes($count) : $controller->getRecipes();
+        $CategoryId = isset($CategoryId) ? $CategoryId : -1;
+        $count = isset($count) ? $count : -1;
+        $recipes = $controller->getRecipes($CategoryId, $count);
 
-        foreach ($recipes as $recipe) {
-            $controller->getTemplate('recipe.php', array('recipe' => $recipe));
+        if ($recipes) {
+            foreach ($recipes as $recipe) {
+                $controller->getTemplate('recipe.php', array('recipe' => $recipe));
+            }
         }
     ?>
 </div>

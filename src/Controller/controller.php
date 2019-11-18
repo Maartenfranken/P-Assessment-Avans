@@ -39,17 +39,63 @@ if (!class_exists('Controller')) {
             return $categories;
         }
 
-        //Dummy data (use database later)
-        //Current default count = 10
-        public function getRecipes($count = 10) {
-            $recipes = array();
-            $category = new Category(0, "Pasta", "", 10);
+        public function getCategoryById(int $CategoryID) {
+            $db = Database::getInstance();
+            $category = $db->query("SELECT * FROM category WHERE ID = " . $CategoryID, Category::class);
+            if ($category && count($category) === 1) {
+                return $category[0];
+            } else {
+                return "";
+            }
+        }
 
-            for ($i = 0; $i < $count; $i++) {
-                $recipes[] = new Recipe($i, "Title", date_create("now"), "Lorem ipsum here", 4, "20 minuten", $category);
+        public function getRecipes(int $CategoryID = -1, int $count = 10) {
+            $db = Database::getInstance();
+
+            if (!is_int($count) || $count < 0) {
+                $count = 10;
+            }
+
+            if ($CategoryID !== -1) {
+                $recipes = $db->query("SELECT * FROM recipe WHERE CategoryID = " . $CategoryID . " LIMIT " . $count, Recipe::class);
+            } else {
+                $recipes = $db->query("SELECT * FROM recipe LIMIT " . $count, Recipe::class);
+            }
+
+            if ($recipes) {
+                foreach ($recipes as $recipe) {
+                    $ingredients = $this->getIngredients($recipe->getID());
+                     
+                    if ($ingredients) {
+                        foreach ($ingredients as $ingredient) {
+                            $recipe->addIngredient($ingredient);
+                        }
+                    }
+                }
             }
 
             return $recipes;
+        }
+
+        public function getIngredients(int $RecipeID) {
+            $db = Database::getInstance();
+            $ingredients = $db->query("SELECT ri.IngredientID, i.Name, ri.Count, ri.Type FROM recipe_ingredients ri INNER JOIN ingredient i ON ri.IngredientID = i.ID WHERE ri.RecipeID = " . $RecipeID, Ingredient::class);
+            return $ingredients;
+        }
+
+        //https://stackoverflow.com/a/3161830
+        public function truncate(string $string, int $length = -1, $append="&hellip;") {
+            if ($length !== -1) {
+                $string = trim($string);
+
+                if(strlen($string) > $length) {
+                    $string = wordwrap($string, $length);
+                    $string = explode("\n", $string, 2);
+                    $string = $string[0] . $append;
+                }
+            }
+
+            return $string;
         }
     }
 }
