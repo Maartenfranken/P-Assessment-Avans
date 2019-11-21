@@ -3,10 +3,13 @@
     $controller = new Controller();
     $categoryId = isset($_GET['id']) ? intval(filter_input(INPUT_GET, 'id', FILTER_SANITIZE_NUMBER_INT)) : '';
     $category = !empty($categoryId) || $categoryId === 0 ? $controller->getCategoryById($categoryId): '';
-    $categoryTitle = $category ? $category->getTitle() : "";
+    if (empty($category) || !$category || !$category instanceof Category) {
+        header("Location: http://localhost/Avans/P_Assessment");
+        die();
+    }
 ?>
 
-<?php $controller->getTemplate('banner.php', array('title' => $categoryTitle, 'bgImage' => IMAGE_PATH . 'banner-home.jpg')); ?>
+<?php $controller->getTemplate('banner.php', array('title' => $category->getTitle(), 'bgImage' => IMAGE_PATH . 'banner-home.jpg')); ?>
 
 <section class="container">
     <div class="row">

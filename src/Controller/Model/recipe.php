@@ -1,14 +1,14 @@
 <?php
 if (!class_exists('Recipe')) {
     class Recipe {
-        protected $ID;
-        protected $Title;
-        protected $Description;
-        protected $Date;
-        protected $NumberOfPersons;
-        protected $TimeNecessary;
-        protected $CategoryID;
-        protected $ingredients = array();
+        private $ID;
+        private $Title;
+        private $Description;
+        private $Date;
+        private $NumberOfPersons;
+        private $TimeNecessary;
+        private $CategoryID;
+        private $ingredients = array();
 
         function __construct(int $ID = 0, String $Title = "", String $Description = "", DateTime $Date = null, int $NumberOfPersons = 0, String $TimeNecessary = "", int $CategoryID = -1) {
             if (!$this->ID) {
@@ -25,6 +25,8 @@ if (!class_exists('Recipe')) {
             }
             if (!$this->NumberOfPersons) {
                 $this->NumberOfPersons = $NumberOfPersons;
+            } else if (!is_int($this->NumberOfPersons)) {
+                $this->NumberOfPersons = intval($this->NumberOfPersons);
             }
             if (!$this->TimeNecessary) {
                 $this->TimeNecessary = $TimeNecessary;
@@ -70,6 +72,22 @@ if (!class_exists('Recipe')) {
             return $this->TimeNecessary;
         }
 
+        public function getAdditionalInfo() {
+            ob_start();
+            if (is_int($this->NumberOfPersons) && intval($this->NumberOfPersons) > 0) {
+                ?>
+                <p><?php echo $this->NumberOfPersons . " "; echo ($this->NumberOfPersons > 1) ? "personen" : "persoon"; ?></p>
+                <?php
+            }
+            if (!empty($this->TimeNecessary)) {
+                ?>
+                <p><?php echo $this->TimeNecessary; ?></p>
+                <?php
+            }
+        
+            return ob_get_clean();
+        }
+
         public function getCategoryID() {
             return $this->CategoryID;
         }
@@ -90,10 +108,22 @@ if (!class_exists('Recipe')) {
             }
         }
 
+        public function addIngredients(array $ingredients) {
+            foreach ($ingredients as $ingredient) {
+                if ($ingredient instanceof Ingredient) {
+                    $this->addIngredient($ingredient);
+                }
+            }
+        }
+
         public function getIngredients() {
             if ($this->ingredients && !empty($this->ingredients)) {
                 return $this->ingredients;
             }
+        }
+
+        public function getPermalink() {
+            return "recipe.php?id=" . $this->ID;
         }
     }
 }

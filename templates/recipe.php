@@ -2,7 +2,7 @@
 $controller = new Controller();
 if (isset($recipe)) { ?>
 <div class="col-12">
-    <div class="card">
+    <a class="card" href="<?php echo $recipe->getPermalink(); ?>">
         <div class="d-flex">
             <div class="img-square-wrapper">
                 <img class="" src="http://via.placeholder.com/150x150" alt="Card image cap">
@@ -12,6 +12,6 @@ if (isset($recipe)) { ?>
                 <p class="card-text"><?php echo $controller->truncate($recipe->getDescription(), 100); ?></p>
             </div>
         </div>
-    </div>
+    </a>
 </div>
 <?php } ?>

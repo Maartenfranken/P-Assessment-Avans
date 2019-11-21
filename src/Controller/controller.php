@@ -42,8 +42,24 @@ if (!class_exists('Controller')) {
         public function getCategoryById(int $CategoryID) {
             $db = Database::getInstance();
             $category = $db->query("SELECT * FROM category WHERE ID = " . $CategoryID, Category::class);
-            if ($category && count($category) === 1) {
+            if ($category && count($category) === 1 && isset($category[0])) {
                 return $category[0];
+            } else {
+                return "";
+            }
+        }
+
+        public function getRecipeById(int $RecipeID) {
+            $db = Database::getInstance();
+            $recipe = $db->query("SELECT * FROM recipe WHERE ID = " . $RecipeID, Recipe::class);
+            if ($recipe && count($recipe) === 1 && isset($recipe[0])) {
+                $ingredients = $this->getIngredients($recipe[0]->getID());
+                     
+                if ($ingredients) {
+                    $recipe[0]->addIngredients($ingredients);
+                }
+
+                return $recipe[0];
             } else {
                 return "";
             }
@@ -67,9 +83,7 @@ if (!class_exists('Controller')) {
                     $ingredients = $this->getIngredients($recipe->getID());
                      
                     if ($ingredients) {
-                        foreach ($ingredients as $ingredient) {
-                            $recipe->addIngredient($ingredient);
-                        }
+                        $recipe->addIngredients($ingredients);
                     }
                 }
             }
