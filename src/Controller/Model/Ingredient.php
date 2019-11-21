@@ -1,12 +1,14 @@
 <?php
 if (!class_exists('Ingredient')) {
-    class Ingredient {
+    class Ingredient
+    {
         private $ID;
         private $Name;
         private $Count;
         private $Type;
 
-        function __construct(int $ID = 0, String $Name = "", int $Count = 0, string $Type = "") {
+        function __construct(int $ID = 0, String $Name = "", int $Count = 0, string $Type = "")
+        {
             if (!$this->ID) {
                 $this->ID = $ID;
             }
@@ -20,32 +22,43 @@ if (!class_exists('Ingredient')) {
                 $this->Type = $Type;
             }
         }
-        
-        public function __get($property) {
+
+        public function __get($property)
+        {
             if (property_exists($this, $property)) {
                 return $this->$property;
             }
         }
 
-        public function __set($property, $value) {
+        public function __set($property, $value)
+        {
             if (property_exists($this, $property)) {
                 $this->$property = $value;
             }
         }
 
-        public function getName() {
+        public function getName()
+        {
             return $this->Name;
         }
 
-        public function getCount() {
+        public function getCount()
+        {
             return $this->Count;
         }
 
-        public function getType() {
+        public function getType()
+        {
             return $this->Type;
         }
 
-        public function __toString() {
+        /**
+         * Helpful toString method for showing ingredient info on Front-end
+         *
+         * @return string
+         */
+        public function __toString()
+        {
             return $this->Name . ": " . $this->Count . " " . $this->Type;
         }
     }

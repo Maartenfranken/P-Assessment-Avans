@@ -1,8 +1,9 @@
-<form class="form-signin">
-  <h1 class="h3 mb-3 font-weight-normal">Login</h1>
-  <label for="inputUsername" class="sr-only">Gebruikersnaam</label>
-  <input type="text" id="inputUsername" class="form-control mb-3" placeholder="Gebruikersnaam" required="" autofocus="">
-  <label for="inputPassword" class="sr-only">Wachtwoord</label>
-  <input type="password" id="inputPassword" class="form-control mb-3" placeholder="Wachtwoord" required="">
-  <button class="btn btn-lg btn-primary btn-block" type="submit">Inloggen</button>
+<form class="form-signin" method="post" action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"], ENT_QUOTES, "utf-8"); ?>">
+    <h1 class="h3 mb-3 font-weight-normal">Login</h1>
+    <?php echo isset($error_message) ? "<div class='alert alert-danger' role='alert'>" . $error_message . "</div>" : ""; ?>
+    <label for="inputUsername" class="sr-only">Gebruikersnaam</label>
+    <input autofocus="" class="form-control mb-3" id="inputUsername" name="inputUsername" placeholder="Gebruikersnaam" required="" type="text">
+    <label for="inputPassword" class="sr-only">Wachtwoord</label>
+    <input class="form-control mb-3" id="inputPassword" name="inputPassword" placeholder="Wachtwoord" required="" type="password">
+    <button class="btn btn-lg btn-primary btn-block" type="submit">Inloggen</button>
 </form>

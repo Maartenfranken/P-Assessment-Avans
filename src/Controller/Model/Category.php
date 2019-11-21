@@ -1,12 +1,14 @@
 <?php
 if (!class_exists('Category')) {
-    class Category {
+    class Category
+    {
         private $ID;
         private $Title;
         private $Description;
         private $count;
 
-        function __construct(int $ID = 0, String $Title = "", String $Description = "", int $count = 0) {
+        function __construct(int $ID = 0, String $Title = "", String $Description = "", int $count = 0)
+        {
             if (!$this->ID) {
                 $this->ID = $ID;
             }
@@ -20,14 +22,16 @@ if (!class_exists('Category')) {
                 $this->count = $count;
             }
         }
-        
-        public function __get($property) {
+
+        public function __get($property)
+        {
             if (property_exists($this, $property)) {
                 return $this->$property;
             }
         }
 
-        public function __set($property, $value) {
+        public function __set($property, $value)
+        {
             if (property_exists($this, $property)) {
                 $this->$property = $value;
             }
@@ -52,7 +56,8 @@ if (!class_exists('Category')) {
             return $this->count;
         }
 
-        public function getPermalink() {
+        public function getPermalink()
+        {
             return "category.php?id=" . $this->ID;
         }
     }

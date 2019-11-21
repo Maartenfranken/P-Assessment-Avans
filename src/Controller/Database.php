@@ -1,7 +1,8 @@
 <?php
 //https://www.php.net/manual/en/mysqli-result.fetch-object.php
 if (!class_exists('Database')) {
-    class Database {
+    class Database
+    {
         private $connection;
         private static $instance;
         private $host = "localhost";
@@ -29,11 +30,14 @@ if (!class_exists('Database')) {
         }
 
         // Magic method clone is empty to prevent duplication of connection
-        private function __clone() {}
+        private function __clone()
+        {
+        }
 
         public function query(String $sql, String $class = '')
         {
             if ($this->connection) {
+                //TODO: SQL NEEDS TO BE PREPARED
                 if ($result = $this->connection->query($sql)) {
                     $array = $this->fetchObjects($result, $class);
 
