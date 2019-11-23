@@ -1,22 +1,21 @@
 <?php
-//https://www.php.net/manual/en/mysqli-result.fetch-object.php
 if (!class_exists('Database')) {
     class Database
     {
         private $connection;
         private static $instance;
-        private $host = "localhost";
+        private $server = "mysql:host=localhost;dbname=p_assessment";
         private $username = "root";
         private $password = "";
-        private $database = "p_assessment";
 
-        //TODO: Fix with try catch?
         private function __construct()
         {
-            $this->connection = new mysqli($this->host, $this->username, $this->password, $this->database);
-
-            if (mysqli_connect_error()) {
-                trigger_error("Failed to connect to MySQL: " . mysql_connect_error(), E_USER_ERROR);
+            try {
+                $this->connection = new PDO($this->server, $this->username, $this->password);
+                $this->connection->setAttribute(PDO::ATTR_EMULATE_PREPARES, FALSE); //Fix for an issue I had with int parameters.
+            } catch (PDOException $e) {
+                error_log($e->getMessage());
+                exit("Error connecting to database");
             }
         }
 
@@ -34,30 +33,55 @@ if (!class_exists('Database')) {
         {
         }
 
-        public function query(String $sql, String $class = '')
+        public function closeConnection()
+        {
+            $this->connection = null;
+        }
+
+        /**
+         * Executes the SQL Query after preparing and adding possible values
+         * Returns an array of objects of specified class if given
+         *
+         * @param string $sql
+         * @param string $class
+         * @param array $values
+         * @return array
+         */
+        public function select(string $sql, string $class = "", array $values = array())
         {
             if ($this->connection) {
-                //TODO: SQL NEEDS TO BE PREPARED
-                if ($result = $this->connection->query($sql)) {
-                    $array = $this->fetchObjects($result, $class);
+                $stmt = $this->connection->prepare($sql);
 
-                    mysqli_free_result($result);
-
-                    return $array;
+                if (empty($values)) {
+                    $stmt->execute();
+                } else {
+                    $stmt->execute($values);
                 }
+
+                return $this->fetchObjects($stmt, $class);
             }
         }
 
-        private function fetchObjects($result, $class)
+        public function insert()
+        {
+
+        }
+
+        public function delete()
+        {
+
+        }
+
+        private function fetchObjects(PDOStatement $stmt, $class)
         {
             $array = array();
 
             if (!empty($class)) {
-                while ($obj = $result->fetch_object($class)) {
+                while ($obj = $stmt->fetchObject($class)) {
                     $array[] = $obj;
                 }
             } else {
-                while ($obj = $result->fetch_object()) {
+                while ($obj = $stmt->fetchObject()) {
                     $array[] = $obj;
                 }
             }

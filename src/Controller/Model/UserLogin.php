@@ -2,44 +2,56 @@
 if (!class_exists('UserLogin')) {
     class UserLogin
     {
+        private $allowedRoles = array("admin");
+
         /**
          * Check login
          */
         public function checkLogin()
         {
-            $username = $_POST['username'];
+            $username =filter_var($_POST['username'], FILTER_SANITIZE_STRING);
             $password = $_POST['password'];
 
-            if (password_verify($password, $this->getPassword($username))) {
-                $_SESSION['user'] = new User($username); //Save User object in Session
+            if ($this->checkUserExists($username)) {
+                if (password_verify($password, $this->getPassword($username))) {
+                    $user = new User($username);
+                    $_SESSION['user'] = $user; //Save User object in Session
 
-                //TODO: Redirect to CRUD Back-end
-            } else {
-                //Show error message
+                    if (in_array($user->getRole(), $this->allowedRoles)) {
+                        //TODO: Redirect to CRUD Back-end
+                    }
+                } else {
+                    //TODO: Show error message
+                }
             }
+
+            //TODO: Redirect to Login
         }
 
         /**
          * Checks if User exists by Username
          *
          * @param $username
+         * @return bool
          */
-        public function checkUserExists($username)
+        public function checkUserExists($username): bool
         {
             $db = Database::getInstance();
+
+            return true;
         }
 
         /**
          * Get the password by Username
          *
          * @param $username
-         * @return bool
+         * @return string
          */
-        private function getPassword($username): bool
+        private function getPassword($username): string
         {
             $db = Database::getInstance();
 
-            return true;
+            return "";
         }
     }
 }

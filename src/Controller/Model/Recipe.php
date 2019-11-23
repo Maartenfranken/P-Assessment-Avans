@@ -149,7 +149,7 @@ if (!class_exists('Recipe')) {
             $inArray = false;
             if ($this->ingredients && is_array($this->ingredients)) {
                 foreach ($this->ingredients as $ingredient) {
-                    if ($ingredient->ID === $checkIngredient->ID) {
+                    if ($ingredient->Name === $checkIngredient->Name) {
                         $inArray = true;
                     }
                 }

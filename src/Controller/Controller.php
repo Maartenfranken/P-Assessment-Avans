@@ -20,7 +20,7 @@ if (!class_exists('Controller')) {
         private function setPaths()
         {
             if (!defined("BASE_URL")) {
-                define('BASE_URL', 'http://localhost/Avans/P_Assessment/');
+                define('BASE_URL', 'http://localhost/Avans/P_Assessment/'); //TODO GET BASE PATH OF DIRECTORY ANOTHER WAY
             }
             if (!defined("IMAGE_PATH")) {
                 define('IMAGE_PATH', 'images/');
@@ -54,7 +54,8 @@ if (!class_exists('Controller')) {
          *
          * @return string|void
          */
-        public function checkLogin() {
+        public function checkLogin()
+        {
             $userLogin = new UserLogin();
             $error = $userLogin->checkLogin();
 
@@ -69,8 +70,7 @@ if (!class_exists('Controller')) {
         public function getCategories()
         {
             $db = Database::getInstance();
-            $categories = $db->query("SELECT * FROM category", Category::class);
-            return $categories;
+            return $db->select("SELECT * FROM category", Category::class);
         }
 
         /**
@@ -82,7 +82,11 @@ if (!class_exists('Controller')) {
         public function getCategoryById(int $CategoryID)
         {
             $db = Database::getInstance();
-            $category = $db->query("SELECT * FROM category WHERE ID = " . $CategoryID, Category::class);
+            $category = $db->select("SELECT * FROM category WHERE ID = :categoryId",
+                Category::class,
+                array(
+                    ':categoryId' => $CategoryID
+                ));
             if ($category && count($category) === 1 && isset($category[0])) {
                 return $category[0];
             } else {
@@ -99,18 +103,24 @@ if (!class_exists('Controller')) {
         public function getRecipeById(int $RecipeID)
         {
             $db = Database::getInstance();
-            $recipe = $db->query("SELECT * FROM recipe WHERE ID = " . $RecipeID, Recipe::class);
+            $recipe = $db->select("SELECT * FROM recipe WHERE ID = :recipeId",
+                Recipe::class,
+                array(
+                    ':recipeId' => $RecipeID
+                ));
             if ($recipe && count($recipe) === 1 && isset($recipe[0])) {
-                $ingredients = $this->getIngredients($recipe[0]->getID());
+                $recipe = $recipe[0];
+                if ($recipe instanceof Recipe) {
+                    $ingredients = $this->getIngredients($recipe->getID());
 
-                if ($ingredients) {
-                    $recipe[0]->addIngredients($ingredients);
+                    if ($ingredients) {
+                        $recipe->addIngredients($ingredients);
+                    }
+
+                    return $recipe;
                 }
-
-                return $recipe[0];
-            } else {
-                return "";
             }
+            return "";
         }
 
         /**
@@ -129,17 +139,28 @@ if (!class_exists('Controller')) {
             }
 
             if ($CategoryID !== -1) {
-                $recipes = $db->query("SELECT * FROM recipe WHERE CategoryID = " . $CategoryID . " LIMIT " . $count, Recipe::class);
+                $recipes = $db->select("SELECT * FROM recipe WHERE CategoryID = :categoryId LIMIT :count",
+                    Recipe::class,
+                    array(
+                        ':categoryId' => $CategoryID,
+                        ':count' => $count
+                    ));
             } else {
-                $recipes = $db->query("SELECT * FROM recipe LIMIT " . $count, Recipe::class);
+                $recipes = $db->select("SELECT * FROM recipe LIMIT :count",
+                    Recipe::class,
+                    array(
+                        ':count' => $count
+                    ));
             }
 
             if ($recipes) {
                 foreach ($recipes as $recipe) {
-                    $ingredients = $this->getIngredients($recipe->getID());
+                    if ($recipe instanceof Recipe) {
+                        $ingredients = $this->getIngredients($recipe->getID());
 
-                    if ($ingredients) {
-                        $recipe->addIngredients($ingredients);
+                        if ($ingredients) {
+                            $recipe->addIngredients($ingredients);
+                        }
                     }
                 }
             }
@@ -156,7 +177,15 @@ if (!class_exists('Controller')) {
         public function getIngredients(int $RecipeID)
         {
             $db = Database::getInstance();
-            $ingredients = $db->query("SELECT ri.IngredientID, i.Name, ri.Count, ri.Type FROM recipe_ingredients ri INNER JOIN ingredient i ON ri.IngredientID = i.ID WHERE ri.RecipeID = " . $RecipeID, Ingredient::class);
+            $ingredients = $db->select("SELECT ri.IngredientID, i.Name, ri.Count, ri.Type 
+                     FROM recipe_ingredients ri 
+                     INNER JOIN ingredient i 
+                     ON ri.IngredientID = i.ID 
+                     WHERE ri.RecipeID = :recipeId",
+                Ingredient::class,
+                array(
+                    ':recipeId' => $RecipeID
+                ));
             return $ingredients;
         }
 
