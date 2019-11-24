@@ -47,32 +47,54 @@ if (!class_exists('Database')) {
          * @param array $values
          * @return array
          */
-        public function select(string $sql, string $class = "", array $values = array())
+        public function select(string $sql, string $class = "", array $values = array()): array
         {
             if ($this->connection) {
                 $stmt = $this->connection->prepare($sql);
 
-                if (empty($values)) {
-                    $stmt->execute();
-                } else {
-                    $stmt->execute($values);
-                }
+                try {
+                    if (empty($values)) {
+                        $stmt->execute();
+                    } else {
+                        $stmt->execute($values);
+                    }
 
-                return $this->fetchObjects($stmt, $class);
+                    return $this->fetchObjects($stmt, $class);
+                } catch (PDOException $e) {
+                    error_log($e->getMessage());
+                    return array();
+                }
             }
         }
 
-        public function insert()
+        /**
+         * Prepare the SQL query and execute with values
+         *
+         * @param string $sql
+         * @param array $values
+         * @return bool
+         */
+        public function prepareExecute(string $sql, array $values = array()): bool
         {
+            if ($this->connection) {
+                $stmt = $this->connection->prepare($sql);
 
+                try {
+                    if (empty($values)) {
+                        $stmt->execute();
+                    } else {
+                        $stmt->execute($values);
+                    }
+
+                    return true;
+                } catch (PDOException $e) {
+                    error_log($e->getMessage());
+                    return false;
+                }
+            }
         }
 
-        public function delete()
-        {
-
-        }
-
-        private function fetchObjects(PDOStatement $stmt, $class)
+        private function fetchObjects(PDOStatement $stmt, string $class): array
         {
             $array = array();
 

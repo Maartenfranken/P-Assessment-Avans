@@ -4,9 +4,11 @@ if (!class_exists('User')) {
         private $username;
         private $role = "admin";
 
-        public function __construct(string $username)
+        public function __construct(string $username = "")
         {
-            $this->username = $username;
+            if (!$this->username) {
+                $this->username = $username;
+            }
         }
 
         public function getUsername() {

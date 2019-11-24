@@ -7,7 +7,7 @@ if (!class_exists('Ingredient')) {
         private $Count;
         private $Type;
 
-        function __construct(int $ID = 0, String $Name = "", int $Count = 0, string $Type = "")
+        function __construct(int $ID = 0, string $Name = "", int $Count = 0, string $Type = "")
         {
             if (!$this->ID) {
                 $this->ID = $ID;

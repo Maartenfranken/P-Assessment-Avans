@@ -7,7 +7,7 @@ if (!class_exists('Category')) {
         private $Description;
         private $count;
 
-        function __construct(int $ID = 0, String $Title = "", String $Description = "", int $count = 0)
+        function __construct(int $ID = 0, string $Title = "", string $Description = "", int $count = 0)
         {
             if (!$this->ID) {
                 $this->ID = $ID;

@@ -22,6 +22,12 @@ if (!class_exists('Controller')) {
             if (!defined("BASE_URL")) {
                 define('BASE_URL', 'http://localhost/Avans/P_Assessment/'); //TODO GET BASE PATH OF DIRECTORY ANOTHER WAY
             }
+            if (!defined("LOGIN_URL") && defined("BASE_URL")) {
+                define('LOGIN_URL', BASE_URL . "login.php");
+            }
+            if (!defined("ADMIN_URL") && defined("BASE_URL")) {
+                define('ADMIN_URL', BASE_URL . "admin.php");
+            }
             if (!defined("IMAGE_PATH")) {
                 define('IMAGE_PATH', 'images/');
             }
@@ -174,19 +180,22 @@ if (!class_exists('Controller')) {
          * @param int $RecipeID
          * @return array
          */
-        public function getIngredients(int $RecipeID)
+        public function getIngredients(int $RecipeID = -1)
         {
             $db = Database::getInstance();
-            $ingredients = $db->select("SELECT ri.IngredientID, i.Name, ri.Count, ri.Type 
+            if ($RecipeID !== -1) {
+                return $db->select("SELECT ri.IngredientID, i.Name, ri.Count, ri.Type 
                      FROM recipe_ingredients ri 
                      INNER JOIN ingredient i 
                      ON ri.IngredientID = i.ID 
                      WHERE ri.RecipeID = :recipeId",
-                Ingredient::class,
-                array(
-                    ':recipeId' => $RecipeID
-                ));
-            return $ingredients;
+                    Ingredient::class,
+                    array(
+                        ':recipeId' => $RecipeID
+                    ));
+            } else {
+                return $db->select("SELECT * FROM ingredient", Ingredient::class);
+            }
         }
 
         /**
@@ -211,6 +220,21 @@ if (!class_exists('Controller')) {
             }
 
             return $string;
+        }
+
+        /**
+         * Executes admin actions
+         *
+         * @param $action
+         */
+        public function executeAdminAction($action)
+        {
+            $userLogin = new UserLogin();
+            switch ($action) {
+                case "logout":
+                    $userLogin->logout();
+                    break;
+            }
         }
     }
 }

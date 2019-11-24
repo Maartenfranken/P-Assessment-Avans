@@ -11,7 +11,7 @@ if (!class_exists('Recipe')) {
         private $CategoryID;
         private $ingredients = array();
 
-        function __construct(int $ID = 0, String $Title = "", String $Description = "", DateTime $Date = null, int $NumberOfPersons = 0, String $TimeNecessary = "", int $CategoryID = -1)
+        function __construct(int $ID = 0, string $Title = "", string $Description = "", DateTime $Date = null, int $NumberOfPersons = 0, string $TimeNecessary = "", int $CategoryID = -1)
         {
             if (!$this->ID) {
                 $this->ID = $ID;
@@ -74,7 +74,7 @@ if (!class_exists('Recipe')) {
 
         public function getNumberOfPersons()
         {
-            return $this->NumberofPersons;
+            return $this->NumberOfPersons;
         }
 
         public function getTimeNecessary()
