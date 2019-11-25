@@ -3,7 +3,7 @@
 ?>
 <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
     <h2><?php echo isset($type) ? $type : ''; ?></h2>
-    <a class="btn btn-dark" href="<?php echo isset($url) ? BASE_URL . $url . '?action=new' : ''; ?>">Nieuw <?php echo isset($singular) ? $singular : ''; ?></a>
+    <a class="btn btn-dark" href="<?php echo isset($url) ? BASE_URL . $url . '.php?action=new' : ''; ?>">Nieuw <?php echo isset($singular) ? $singular : ''; ?></a>
 </div>
 <?php if (isset($tableHeaders) && isset($url) && isset($type)) { ?>
     <div class="table-responsive">
@@ -57,8 +57,8 @@
                                     }
                                 ?>
                                 <td align="center">
-                                    <a href="<?php echo BASE_URL . $url; ?>?action=edit&id=<?php echo $row->ID; ?>" class="text-primary"><i class="fa fa-fw fa-edit"></i></a> |
-                                    <a href="<?php echo BASE_URL . $url; ?>?action=delete&id=<?php echo $row->ID; ?>" class="text-danger" onclick="return confirm('Weet je zeker dat je dit wilt verwijderen?');"><i class="fa fa-fw fa-trash"></i></a>
+                                    <a href="<?php echo BASE_URL . $url; ?>.php?action=edit&id=<?php echo $row->ID; ?>" class="text-primary"><i class="fa fa-fw fa-edit"></i></a> |
+                                    <a href="<?php echo ADMIN_URL; ?>?action=delete&id=<?php echo $row->ID; ?>&type=<?php echo $type; ?>" class="text-danger" onclick="return confirm('Weet je zeker dat je dit wilt verwijderen?');"><i class="fa fa-fw fa-trash"></i></a>
                                 </td>
                             </tr>
                             <?php

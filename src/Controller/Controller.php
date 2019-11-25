@@ -101,11 +101,11 @@ if (!class_exists('Controller')) {
         }
 
         /**
-         * Returns the Recipe object or empty string if no Recipe was found by ID
-         *
-         * @param int $RecipeID
-         * @return Recipe|string
-         */
+     * Returns the Recipe object or empty string if no Recipe was found by ID
+     *
+     * @param int $RecipeID
+     * @return Recipe|string
+     */
         public function getRecipeById(int $RecipeID)
         {
             $db = Database::getInstance();
@@ -124,6 +124,29 @@ if (!class_exists('Controller')) {
                     }
 
                     return $recipe;
+                }
+            }
+            return "";
+        }
+
+        /**
+         * Returns the Ingredient object or empty string if no Ingredient was found by ID
+         *
+         * @param int $IngredientID
+         * @return Ingredient|string
+         */
+        public function getIngredientById(int $IngredientID)
+        {
+            $db = Database::getInstance();
+            $ingredient = $db->select("SELECT * FROM ingredient WHERE ID = :ingredientID",
+                Ingredient::class,
+                array(
+                    ':ingredientID' => $IngredientID
+                ));
+            if ($ingredient && count($ingredient) === 1 && isset($ingredient[0])) {
+                $ingredient = $ingredient[0];
+                if ($ingredient instanceof Ingredient) {
+                    return $ingredient;
                 }
             }
             return "";
@@ -199,6 +222,196 @@ if (!class_exists('Controller')) {
         }
 
         /**
+         * Inserts the necessary rows to the database
+         *
+         * @param string $type
+         */
+        private function insert(string $type): void
+        {
+            $db = Database::getInstance();
+
+            switch($type) {
+                case "Recipes":
+                    $data = array();
+
+                    $data['Title'] = isset($_POST['title']) ? filter_var($_POST['title'], FILTER_SANITIZE_STRING) : "";
+                    $data['Description'] = isset($_POST['description']) ? filter_var($_POST['description'], FILTER_SANITIZE_STRING) : NULL;
+                    $data['Date'] = (isset($_POST['date']) && !DateTime::createFromFormat('d/m/Y', $_POST['date'])) ? $_POST['date'] : date("Y-m-d H:i:s");
+                    $data['NumberOfPersons'] = isset($_POST['numberOfPersons']) ? filter_var($_POST['numberOfPersons'], FILTER_SANITIZE_STRING) : NULL;
+                    $data['TimeNecessary'] = isset($_POST['timeNecessary']) ? filter_var($_POST['timeNecessary'], FILTER_SANITIZE_STRING) : NULL;
+                    $data['CategoryID'] = isset($_POST['categoryID']) ? filter_var($_POST['categoryID'], FILTER_SANITIZE_NUMBER_INT) : NULL;
+
+                    $success = $db->prepareExecute("INSERT INTO recipe 
+                                            (Title, Description, Date, NumberOfPersons, TimeNecessary, CategoryID) 
+                                            VALUES (:Title, :Description, :Date, :NumberOfPersons, :TimeNecessary, :CategoryID)",
+                                            $data);
+
+                    if ($success) {
+                        $recipeId = $db->getLastId();
+
+                        if (isset($_POST['ingredients']) && is_array($_POST['ingredients'])) {
+                            foreach ($_POST['ingredients'] as $ingredientID => $ingredient) {
+                                if (isset($ingredient['checked'])) { //Check if included
+                                    $data = array();
+
+                                    $data['IngredientID'] = $ingredientID;
+                                    $data['RecipeID'] = $recipeId;
+                                    $data['Count'] = isset($ingredient['count']) ? filter_var($ingredient['count'], FILTER_SANITIZE_NUMBER_INT) : 0;
+                                    $data['Type'] = isset($ingredient['type']) ? filter_var($ingredient['type'], FILTER_SANITIZE_STRING) : "";
+
+                                    $db->prepareExecute("INSERT INTO recipe_ingredients 
+                                            (IngredientID, RecipeID, Count, Type) 
+                                            VALUES (:IngredientID, :RecipeID, :Count, :Type)",
+                                            $data);
+                                }
+                            }
+                        }
+                    }
+
+                    break;
+                case "Ingredients":
+                    $data = array();
+
+                    $data['Name'] = isset($_POST['name']) ? filter_var($_POST['name'], FILTER_SANITIZE_STRING) : "";
+
+                    $db->prepareExecute("INSERT INTO ingredient 
+                                            (Name) 
+                                            VALUES (:Name)",
+                                            $data);
+                    break;
+                case "Categories":
+                    $data = array();
+
+                    $data['Title'] = isset($_POST['title']) ? filter_var($_POST['title'], FILTER_SANITIZE_STRING) : "";
+                    $data['Description'] = isset($_POST['description']) ? filter_var($_POST['description'], FILTER_SANITIZE_STRING) : NULL;
+
+                    $db->prepareExecute("INSERT INTO category 
+                                            (Title, Description) 
+                                            VALUES (:Title, :Description)",
+                                            $data);
+                    break;
+            }
+        }
+
+        /**
+         * Updates the necessary rows to the database
+         *
+         * @param string $type
+         */
+        private function update(string $type): void
+        {
+            $db = Database::getInstance();
+
+            switch($type) {
+                case "Recipes":
+                    $data = array();
+
+                    $recipeId = isset($_POST['recipeID']) ? filter_var($_POST['recipeID'], FILTER_SANITIZE_NUMBER_INT) : -1;
+
+                    $data['Title'] = isset($_POST['title']) ? filter_var($_POST['title'], FILTER_SANITIZE_STRING) : "";
+                    $data['Description'] = isset($_POST['description']) ? filter_var($_POST['description'], FILTER_SANITIZE_STRING) : NULL;
+                    $data['Date'] = (isset($_POST['date']) && !DateTime::createFromFormat('d/m/Y', $_POST['date'])) ? $_POST['date'] : date("Y-m-d H:i:s");
+                    $data['NumberOfPersons'] = isset($_POST['numberOfPersons']) ? filter_var($_POST['numberOfPersons'], FILTER_SANITIZE_STRING) : NULL;
+                    $data['TimeNecessary'] = isset($_POST['timeNecessary']) ? filter_var($_POST['timeNecessary'], FILTER_SANITIZE_STRING) : NULL;
+                    $data['CategoryID'] = isset($_POST['categoryID']) ? filter_var($_POST['categoryID'], FILTER_SANITIZE_NUMBER_INT) : NULL;
+
+                    $data['RecipeID'] = $recipeId;
+
+                    if ($data['RecipeID'] >= 0) {
+                        $success = $db->prepareExecute("UPDATE recipe 
+                                                            SET Title = :Title, Description = :Description, Date = :Date, NumberOfPersons = :NumberOfPersons, TimeNecessary = :TimeNecessary, CategoryID = :CategoryID 
+                                                            WHERE ID = :RecipeID",
+                            $data);
+
+                        if ($success) {
+                            if (isset($_POST['ingredients']) && is_array($_POST['ingredients'])) {
+                                foreach ($_POST['ingredients'] as $ingredientID => $ingredient) {
+                                    if (isset($ingredient['checked'])) { //Check if included
+                                        $data = array();
+
+                                        $data['IngredientID'] = $ingredientID;
+                                        $data['RecipeID'] = $recipeId;
+                                        $data['Count'] = isset($ingredient['count']) ? filter_var($ingredient['count'], FILTER_SANITIZE_NUMBER_INT) : 0;
+                                        $data['Type'] = isset($ingredient['type']) ? filter_var($ingredient['type'], FILTER_SANITIZE_STRING) : "";
+
+                                        //TODO: Update ingredient row
+                                        $db->prepareExecute("INSERT INTO recipe_ingredients 
+                                                (IngredientID, RecipeID, Count, Type) 
+                                                VALUES (:IngredientID, :RecipeID, :Count, :Type)",
+                                            $data);
+                                    } else {
+                                        //TODO: Remove ingredient from recipe
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    break;
+                case "Ingredients":
+                    $data = array();
+
+                    $data['Name'] = isset($_POST['name']) ? filter_var($_POST['name'], FILTER_SANITIZE_STRING) : "";
+
+                    $db->prepareExecute("INSERT INTO ingredient 
+                                            (Name) 
+                                            VALUES (:Name)",
+                        $data);
+                    break;
+                case "Categories":
+                    $data = array();
+
+                    $data['Title'] = isset($_POST['title']) ? filter_var($_POST['title'], FILTER_SANITIZE_STRING) : "";
+                    $data['Description'] = isset($_POST['description']) ? filter_var($_POST['description'], FILTER_SANITIZE_STRING) : NULL;
+
+                    $db->prepareExecute("INSERT INTO category 
+                                            (Title, Description) 
+                                            VALUES (:Title, :Description)",
+                        $data);
+                    break;
+            }
+        }
+
+        /**
+         * Deletes the necessary rows from the database
+         *
+         * @param int $ID
+         * @param string $type
+         */
+        private function delete(int $ID, string $type): void
+        {
+            $db = Database::getInstance();
+            switch ($type) {
+                case "Recepten":
+                    $db->prepareExecute("DELETE FROM recipe_ingredients WHERE RecipeID = :recipeID", array(
+                        ':recipeID' => $ID
+                    ));
+                    break;
+                case "Ingrediënten":
+                    $db->prepareExecute("DELETE FROM recipe_ingredients WHERE IngredientID = :ingredientID", array(
+                        ':ingredientID' => $ID
+                    ));
+                    break;
+            }
+
+            switch($type) {
+                case "Recepten":
+                    $type = "recipe";
+                    break;
+                case "Ingrediënten":
+                    $type = "ingredient";
+                    break;
+                case "Categorieën":
+                    $type = "category";
+                    break;
+            }
+
+            $db->prepareExecute("DELETE FROM " . $type . " WHERE ID = :id", array(
+                ':id' => $ID
+            ));
+        }
+
+        /**
          * Trim string based on length
          * https://stackoverflow.com/a/3161830
          *
@@ -225,14 +438,32 @@ if (!class_exists('Controller')) {
         /**
          * Executes admin actions
          *
-         * @param $action
+         * @param string $action
+         * @param string $type
          */
-        public function executeAdminAction($action)
+        public function executeAdminAction(string $action, string $type = "")
         {
             $userLogin = new UserLogin();
             switch ($action) {
                 case "logout":
                     $userLogin->logout();
+                    break;
+                case "new":
+                    if (!empty($type) && $_SERVER['REQUEST_METHOD'] === 'POST') {
+                        $this->insert($type);
+                    }
+                    break;
+                case "edit":
+                    if (!empty($type) && $_SERVER['REQUEST_METHOD'] === 'POST') {
+                        $this->update($type);
+                    }
+                    break;
+                case "delete":
+                    if (isset($_GET['id']) && isset($_GET['type'])) {
+                        $ID = filter_var($_GET['id'], FILTER_SANITIZE_NUMBER_INT);
+                        $type = filter_var($_GET['type'], FILTER_SANITIZE_STRING);
+                        $this->delete($ID, $type);
+                    }
                     break;
             }
         }

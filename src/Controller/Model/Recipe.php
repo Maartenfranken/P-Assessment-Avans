@@ -74,7 +74,11 @@ if (!class_exists('Recipe')) {
 
         public function getNumberOfPersons()
         {
-            return $this->NumberOfPersons;
+            if ($this->NumberOfPersons && $this->NumberOfPersons > 0) {
+                return $this->NumberOfPersons;
+            } else {
+                return "";
+            }
         }
 
         public function getTimeNecessary()
@@ -144,7 +148,7 @@ if (!class_exists('Recipe')) {
          * @param Ingredient $checkIngredient
          * @return bool
          */
-        private function ingredientInArray(Ingredient $checkIngredient): bool
+        public function ingredientInArray(Ingredient $checkIngredient): bool
         {
             $inArray = false;
             if ($this->ingredients && is_array($this->ingredients)) {
@@ -158,11 +162,43 @@ if (!class_exists('Recipe')) {
             return $inArray;
         }
 
-        public function getIngredients()
+        public function getIngredients(): array
         {
             if ($this->ingredients && !empty($this->ingredients)) {
                 return $this->ingredients;
             }
+
+            return array();
+        }
+
+        public function getIngredientCount(Ingredient $checkIngredient): int
+        {
+            $count = 0;
+
+            if ($this->ingredients && is_array($this->ingredients)) {
+                foreach ($this->ingredients as $ingredient) {
+                    if ($ingredient instanceof Ingredient && $ingredient->Name === $checkIngredient->Name) {
+                        $count = $ingredient->getCount();
+                    }
+                }
+            }
+
+            return $count;
+        }
+
+        public function getIngredientType(Ingredient $checkIngredient): string
+        {
+            $type = "";
+
+            if ($this->ingredients && is_array($this->ingredients)) {
+                foreach ($this->ingredients as $ingredient) {
+                    if ($ingredient instanceof Ingredient && $ingredient->Name === $checkIngredient->Name) {
+                        $type = $ingredient->getType();
+                    }
+                }
+            }
+
+            return $type;
         }
 
         public function getPermalink()

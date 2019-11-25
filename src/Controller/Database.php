@@ -94,6 +94,20 @@ if (!class_exists('Database')) {
             }
         }
 
+        /**
+         * Get the last id inserted into database
+         *
+         * @return bool|int
+         */
+        public function getLastId()
+        {
+            if ($this->connection) {
+                return $this->connection->lastInsertId();
+            }
+
+            return false;
+        }
+
         private function fetchObjects(PDOStatement $stmt, string $class): array
         {
             $array = array();
