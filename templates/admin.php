@@ -25,7 +25,7 @@
                     $data = array();
                     switch ($type) {
                         case "Recepten":
-                            $data = $controller->getRecipes();
+                            $data = $controller->getRecipes(-1, 2147483647); //2147483647 is max limit for int on PHP 32 bit, but this should probably be changed
                             break;
                         case "Ingrediënten":
                             $data = $controller->getIngredients();
@@ -50,9 +50,9 @@
                                 <?php
                                     foreach ($arrRow as $value) {
                                         if (!is_array($value)) {
-                                        ?>
-                                            <td><?php echo $value; ?></td>
-                                        <?php
+                                            ?>
+                                                <td><?php echo $value; ?></td>
+                                            <?php
                                         }
                                     }
                                 ?>

@@ -31,6 +31,7 @@
                 <div class="tab-pane fade active show" id="v-pills-ingredients" role="tabpanel" aria-labelledby="v-pills-ingredients-tab">
                     <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"], ENT_QUOTES, "utf-8"); ?>" method="post">
                         <input type="hidden" name="action" value="<?php echo $action; ?>"/>
+                        <input type="hidden" name="ingredientID" value="<?php echo isset($ingredientID) ? $ingredientID : -1; ?>"/>
                         <div class="form-group">
                             <label for="name">Naam</label>
                             <input type="text" class="form-control" id="name" name="name" aria-describedby="Naam" placeholder="Vul hier een naam in" required="required" value="<?php echo (isset($ingredient) && $ingredient instanceof Ingredient) ? $ingredient->getName() : ""; ?>">

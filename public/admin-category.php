@@ -31,6 +31,7 @@
                 <div class="tab-pane fade active show" id="v-pills-categories" role="tabpanel" aria-labelledby="v-pills-categories-tab">
                     <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"], ENT_QUOTES, "utf-8"); ?>" method="post">
                         <input type="hidden" name="action" value="<?php echo $action; ?>"/>
+                        <input type="hidden" name="categoryID" value="<?php echo isset($categoryID) ? $categoryID : -1; ?>"/>
                         <div class="form-group">
                             <label for="title">Titel</label>
                             <input type="text" class="form-control" id="title" name="title" aria-describedby="Title" placeholder="Vul hier een titel in" required="required" value="<?php echo (isset($category) && $category instanceof Category) ? $category->getTitle() : ""; ?>">

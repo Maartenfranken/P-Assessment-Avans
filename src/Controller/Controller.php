@@ -20,7 +20,10 @@ if (!class_exists('Controller')) {
         private function setPaths()
         {
             if (!defined("BASE_URL")) {
-                define('BASE_URL', 'http://localhost/Avans/P_Assessment/'); //TODO GET BASE PATH OF DIRECTORY ANOTHER WAY
+                $pathInfo = pathinfo($_SERVER['PHP_SELF']);
+                $hostName = $_SERVER['HTTP_HOST'];
+                $protocol = strtolower(substr($_SERVER["SERVER_PROTOCOL"],0,5))=='https://'?'https://':'http://';
+                define('BASE_URL', $protocol.$hostName.$pathInfo['dirname']."/");
             }
             if (!defined("LOGIN_URL") && defined("BASE_URL")) {
                 define('LOGIN_URL', BASE_URL . "login.php");
@@ -230,6 +233,8 @@ if (!class_exists('Controller')) {
         {
             $db = Database::getInstance();
 
+            $success = false;
+
             switch($type) {
                 case "Recipes":
                     $data = array();
@@ -274,7 +279,7 @@ if (!class_exists('Controller')) {
 
                     $data['Name'] = isset($_POST['name']) ? filter_var($_POST['name'], FILTER_SANITIZE_STRING) : "";
 
-                    $db->prepareExecute("INSERT INTO ingredient 
+                    $success = $db->prepareExecute("INSERT INTO ingredient 
                                             (Name) 
                                             VALUES (:Name)",
                                             $data);
@@ -285,11 +290,16 @@ if (!class_exists('Controller')) {
                     $data['Title'] = isset($_POST['title']) ? filter_var($_POST['title'], FILTER_SANITIZE_STRING) : "";
                     $data['Description'] = isset($_POST['description']) ? filter_var($_POST['description'], FILTER_SANITIZE_STRING) : NULL;
 
-                    $db->prepareExecute("INSERT INTO category 
+                    $success = $db->prepareExecute("INSERT INTO category 
                                             (Title, Description) 
                                             VALUES (:Title, :Description)",
                                             $data);
                     break;
+            }
+
+            if ($success) {
+                header("Location: " . ADMIN_URL);
+                die();
             }
         }
 
@@ -301,6 +311,8 @@ if (!class_exists('Controller')) {
         private function update(string $type): void
         {
             $db = Database::getInstance();
+
+            $success = false;
 
             switch($type) {
                 case "Recipes":
@@ -321,26 +333,48 @@ if (!class_exists('Controller')) {
                         $success = $db->prepareExecute("UPDATE recipe 
                                                             SET Title = :Title, Description = :Description, Date = :Date, NumberOfPersons = :NumberOfPersons, TimeNecessary = :TimeNecessary, CategoryID = :CategoryID 
                                                             WHERE ID = :RecipeID",
-                            $data);
+                                                            $data);
 
                         if ($success) {
                             if (isset($_POST['ingredients']) && is_array($_POST['ingredients'])) {
-                                foreach ($_POST['ingredients'] as $ingredientID => $ingredient) {
-                                    if (isset($ingredient['checked'])) { //Check if included
-                                        $data = array();
+                                $recipe = $this->getRecipeById($recipeId);
 
-                                        $data['IngredientID'] = $ingredientID;
-                                        $data['RecipeID'] = $recipeId;
-                                        $data['Count'] = isset($ingredient['count']) ? filter_var($ingredient['count'], FILTER_SANITIZE_NUMBER_INT) : 0;
-                                        $data['Type'] = isset($ingredient['type']) ? filter_var($ingredient['type'], FILTER_SANITIZE_STRING) : "";
+                                if ($recipe && $recipe instanceof Recipe) {
+                                    foreach ($_POST['ingredients'] as $ingredientID => $ingredient) {
+                                        $ingredientObj = $this->getIngredientById($ingredientID);
 
-                                        //TODO: Update ingredient row
-                                        $db->prepareExecute("INSERT INTO recipe_ingredients 
-                                                (IngredientID, RecipeID, Count, Type) 
-                                                VALUES (:IngredientID, :RecipeID, :Count, :Type)",
-                                            $data);
-                                    } else {
-                                        //TODO: Remove ingredient from recipe
+                                        if ($ingredientObj instanceof Ingredient) {
+                                            if (isset($ingredient['checked'])) { //Check if included
+                                                $data = array();
+
+                                                $data['IngredientID'] = $ingredientID;
+                                                $data['RecipeID'] = $recipeId;
+                                                $data['Count'] = isset($ingredient['count']) ? filter_var($ingredient['count'], FILTER_SANITIZE_NUMBER_INT) : 0;
+                                                $data['Type'] = isset($ingredient['type']) ? filter_var($ingredient['type'], FILTER_SANITIZE_STRING) : "";
+
+                                                //Check if ingredient is added to recipe
+                                                if (!$recipe->ingredientInArray($ingredientObj)) {
+                                                    //If not then insert
+                                                    $success = $db->prepareExecute("INSERT INTO recipe_ingredients 
+                                                        (IngredientID, RecipeID, Count, Type) 
+                                                        VALUES (:IngredientID, :RecipeID, :Count, :Type)",
+                                                        $data);
+                                                } else {
+                                                    $success = $db->prepareExecute("UPDATE recipe_ingredients 
+                                                        SET Count = :Count, Type = :Type 
+                                                        WHERE IngredientID = :IngredientID AND RecipeID = :RecipeID",
+                                                        $data);
+                                                }
+                                            } else {
+                                                //Check if ingredient is added to recipe
+                                                if ($recipe->ingredientInArray($ingredientObj)) {
+                                                    $success = $db->prepareExecute("DELETE FROM recipe_ingredients WHERE IngredientID = :IngredientID AND RecipeID = :RecipeID", array(
+                                                        ':IngredientID' => $ingredientID,
+                                                        ':RecipeID' => $recipeId
+                                                    ));
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                             }
@@ -353,10 +387,14 @@ if (!class_exists('Controller')) {
 
                     $data['Name'] = isset($_POST['name']) ? filter_var($_POST['name'], FILTER_SANITIZE_STRING) : "";
 
-                    $db->prepareExecute("INSERT INTO ingredient 
-                                            (Name) 
-                                            VALUES (:Name)",
-                        $data);
+                    $data['IngredientID'] = isset($_POST['ingredientID']) ? filter_var($_POST['ingredientID'], FILTER_SANITIZE_NUMBER_INT) : -1;
+
+                    if ($data['IngredientID'] > 0) {
+                        $success = $db->prepareExecute("UPDATE ingredient 
+                                            SET Name = :Name 
+                                            WHERE ID = :IngredientID",
+                                            $data);
+                    }
                     break;
                 case "Categories":
                     $data = array();
@@ -364,11 +402,20 @@ if (!class_exists('Controller')) {
                     $data['Title'] = isset($_POST['title']) ? filter_var($_POST['title'], FILTER_SANITIZE_STRING) : "";
                     $data['Description'] = isset($_POST['description']) ? filter_var($_POST['description'], FILTER_SANITIZE_STRING) : NULL;
 
-                    $db->prepareExecute("INSERT INTO category 
-                                            (Title, Description) 
-                                            VALUES (:Title, :Description)",
-                        $data);
+                    $data['CategoryID'] = isset($_POST['categoryID']) ? filter_var($_POST['categoryID'], FILTER_SANITIZE_NUMBER_INT) : -1;
+
+                    if ($data['CategoryID'] > 0) {
+                        $success = $db->prepareExecute("UPDATE category 
+                                            SET Title = :Title, Description = :Description
+                                            WHERE ID = :CategoryID",
+                                            $data);
+                    }
                     break;
+            }
+
+            if ($success) {
+                header("Location: " . ADMIN_URL);
+                die();
             }
         }
 
@@ -381,6 +428,8 @@ if (!class_exists('Controller')) {
         private function delete(int $ID, string $type): void
         {
             $db = Database::getInstance();
+
+            //Delete related recipe_ingredients rows
             switch ($type) {
                 case "Recepten":
                     $db->prepareExecute("DELETE FROM recipe_ingredients WHERE RecipeID = :recipeID", array(

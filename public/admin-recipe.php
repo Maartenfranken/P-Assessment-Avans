@@ -108,12 +108,13 @@ if ($action && $action === "edit" && isset($_GET['id'])) {
                                             <div class="form-row float-right">
                                                 <div class="form-group mr-4">
                                                     <label for="count<?php echo $ingredient->ID; ?>">Hoeveelheid</label>
-                                                    <input type="text" class="form-control"
+                                                    <input type="number" class="form-control"
                                                            id="count<?php echo $ingredient->ID; ?>"
                                                            name="ingredients[<?php echo $ingredient->ID; ?>][count]"
                                                            aria-describedby="count<?php echo $ingredient->ID; ?>"
                                                            placeholder="50"
-                                                           value="<?php echo (isset($recipe) && $recipe instanceof Recipe && $recipe->ingredientInArray($ingredient)) ? $recipe->getIngredientCount($ingredient) : ""; ?>">
+                                                           min="1"
+                                                           value="<?php echo (isset($recipe) && $recipe instanceof Recipe && $recipe->ingredientInArray($ingredient) && $recipe->getIngredientCount($ingredient) > 0) ? $recipe->getIngredientCount($ingredient) : ""; ?>">
                                                 </div>
                                                 <div class="form-group">
                                                     <label for="type<?php echo $ingredient->ID; ?>">Type</label>

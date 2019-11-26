@@ -59,7 +59,13 @@ if (!class_exists('Ingredient')) {
          */
         public function __toString()
         {
-            return $this->Name . ": " . $this->Count . " " . $this->Type;
+            if (!empty($this->Name) && $this->Count > 0 && $this->Type) {
+                return $this->Name . ": " . $this->Count . " " . $this->Type;
+            } else if (!empty($this->Name)) {
+                return $this->Name;
+            } else {
+                return "";
+            }
         }
     }
 }

@@ -13,9 +13,16 @@ if (empty($category) || !$category || !$category instanceof Category) {
 
     <section class="container">
         <div class="row">
+            <div class="col-md-12 mb-4 text-center">
+                <p><?php echo $category->getDescription(); ?></p>
+            </div>
             <div class="col-md">
-                <h2>Recepten</h2>
-                <?php $controller->getTemplate('recipes.php', array('CategoryId' => $categoryId, 'count' => 10)); ?>
+                <h2>Recepten (<?php echo $category->getCount(); ?>)</h2>
+                <?php if ($category->getCount() > 0) { ?>
+                    <?php $controller->getTemplate('recipes.php', array('CategoryId' => $categoryId, 'count' => 10)); ?>
+                <?php } else { ?>
+                    <p>Geen recepten gevonden</p>
+                <?php } ?>
             </div>
         </div>
     </section>
