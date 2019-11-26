@@ -1,7 +1,7 @@
 <?php
 $controller = new Controller();
 if (isset($recipe)) { ?>
-    <div class="col-12">
+    <div class="col-12 mb-2">
         <a class="card" href="<?php echo $recipe->getPermalink(); ?>">
             <div class="d-flex">
                 <div class="img-square-wrapper">

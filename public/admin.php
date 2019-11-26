@@ -13,7 +13,7 @@
 ?>
 <section class="container mt-4">
     <div class="row">
-        <div class="col-md col-lg-3">
+        <div class="col-md col-lg-3 mb-4 mb-lg-0">
             <div class="nav flex-column nav-pills nav-pills-dark" id="v-pills-tab" role="tablist" aria-orientation="vertical">
                 <a class="nav-link active show" id="v-pills-recipes-tab" data-toggle="pill" href="#v-pills-recipes" role="tab" aria-controls="v-pills-recipes" aria-selected="true">Recepten</a>
                 <a class="nav-link" id="v-pills-ingredients-tab" data-toggle="pill" href="#v-pills-ingredients" role="tab" aria-controls="v-pills-ingredients" aria-selected="false">Ingrediënten</a>

@@ -1,4 +1,4 @@
-<section class="container-fluid d-flex justify-content-center align-items-center mb-5 banner"<?php echo isset($bgImage) ? var_dump($bgImage) . ' style="background-image:url(' . $bgImage . ');"' : ''; ?>>
+<section class="container-fluid d-flex justify-content-center align-items-center mb-5 banner"<?php echo isset($bgImage) ? ' style="background-image:url(' . $bgImage . ');"' : ''; ?>>
     <?php if (isset($title)) { ?>
         <div class="container">
             <div class="row">

@@ -1,0 +1,81 @@
+// main: ../main.less
+body {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+
+  > *:nth-last-child(2) {
+    margin-bottom: 80px;
+  }
+}
+
+a {
+  color: @blue;
+  &:hover {
+    color: @dark-blue;
+  }
+}
+
+.bg {
+  &-primary {
+    background-color: @dark-blue!important;
+  }
+}
+
+.btn {
+  &,
+  &-outline {
+    &-primary {
+      color: @blue;
+      border-color: @blue;
+
+      &:hover,
+      &:not(:disabled):not(.disabled):active {
+        background-color: @blue;
+        border-color: @blue;
+      }
+      &:focus,
+      :not(:disabled):not(.disabled):active:focus {
+        box-shadow: 0 0 0 0.2rem rgba(@blue, .5);
+      }
+    }
+
+    &-dark {
+      color: @dark-green;
+      border-color: @dark-green;
+
+      &:hover,
+      &:not(:disabled):not(.disabled):active {
+        background-color: @dark-green;
+        border-color: @dark-green;
+      }
+      &:focus,
+      :not(:disabled):not(.disabled):active:focus {
+        box-shadow: 0 0 0 0.2rem rgba(@dark-green, .5);
+      }
+    }
+  }
+
+  & {
+    &-primary {
+      background-color: @blue;
+      color: white;
+    }
+    &-dark {
+      background-color: @dark-green;
+      color: white;
+    }
+  }
+}
+
+.form-control {
+  &:focus {
+    border-color: @dark-blue;
+    box-shadow: 0 0 0 0.2rem rgba(@blue,   .25);
+  }
+}
+
+.table .thead-dark th {
+  background-color: @dark-green;
+  border-color: @dark-green;
+}
