@@ -34,7 +34,7 @@
                         <input type="hidden" name="ingredientID" value="<?php echo isset($ingredientID) ? $ingredientID : -1; ?>"/>
                         <div class="form-group">
                             <label for="name">Naam</label>
-                            <input type="text" class="form-control" id="name" name="name" aria-describedby="Naam" placeholder="Vul hier een naam in" required="required" value="<?php echo (isset($ingredient) && $ingredient instanceof Ingredient) ? $ingredient->getName() : ""; ?>">
+                            <input type="text" class="form-control" id="name" name="name" aria-describedby="name" placeholder="Vul hier een naam in" required="required" value="<?php echo (isset($ingredient) && $ingredient instanceof Ingredient) ? $ingredient->getName() : ""; ?>">
                         </div>
                         <button type="submit" class="btn btn-dark"><?php echo ($action && $action === 'edit') ? "Opslaan" : "Toevoegen"; ?></button>
                     </form>

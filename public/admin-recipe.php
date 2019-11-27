@@ -100,7 +100,7 @@ if ($action && $action === "edit" && isset($_GET['id'])) {
                                                    value="1"
                                                    id="ingredient<?php echo $ingredient->ID; ?>"
                                                    name="ingredients[<?php echo $ingredient->ID; ?>][checked]"
-                                                <?php echo (isset($recipe) && $recipe instanceof Recipe && $recipe->ingredientInArray($ingredient)) ? " checked='true'" : ""; ?>>
+                                                <?php echo (isset($recipe) && $recipe instanceof Recipe && $recipe->ingredientInArray($ingredient)) ? " checked='checked'" : ""; ?>>
                                             <label class="form-check-label"
                                                    for="ingredient<?php echo $ingredient->ID; ?>">
                                                 <?php echo $ingredient->getName(); ?>

@@ -56,7 +56,7 @@
                                         }
                                     }
                                 ?>
-                                <td align="center">
+                                <td class="text-center">
                                     <a href="<?php echo BASE_URL . $url; ?>.php?action=edit&id=<?php echo $row->ID; ?>" class="text-primary"><i class="fa fa-fw fa-edit"></i></a> |
                                     <a href="<?php echo ADMIN_URL; ?>?action=delete&id=<?php echo $row->ID; ?>&type=<?php echo $type; ?>" class="text-danger" onclick="return confirm('Weet je zeker dat je dit wilt verwijderen?');"><i class="fa fa-fw fa-trash"></i></a>
                                 </td>
